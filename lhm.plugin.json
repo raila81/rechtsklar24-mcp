@@ -1,0 +1,539 @@
+{
+  "cloudEndpoint": "https://rechtsklar24.de/mcp?src=mcp",
+  "description": "German online-shop law with sources: obligation dates (e.g. the withdrawal button), fine ceilings, unit-price calculation under the PAngV and sourced study facts.",
+  "homepage": "https://rechtsklar24.de",
+  "identifier": "rechtsklar24",
+  "name": "Rechtsklar24",
+  "prompts": [],
+  "resources": [],
+  "tools": [
+    {
+      "name": "get_obligation_dates",
+      "title": "Stichtag einer Pflicht im Onlineshop-Recht",
+      "description": "Use for \"seit wann gilt\", \"ab wann\", \"wann kommt\", \"Frist\", \"Stichtag\", \"Übergangsfrist\" around German/EU e-commerce obligations: Widerrufsbutton (§ 356a BGB), GPSR, BFSG (Barrierefreiheit), Greenwashing-Verbot/EmpCo, neue Produkthaftungsrichtlinie, Preisangabenverordnung 2022, Erlöschen des Widerrufsrechts. Returns the date from rechtsklar24's source register with the statute, the source URL and the date it was last checked, and says \"gilt seit\" or \"gilt ab\" computed from today. General information only: it does not say whether a particular shop is affected or compliant.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "thema": {
+            "type": "string",
+            "enum": [
+              "widerrufsbutton",
+              "gpsr",
+              "bfsg",
+              "greenwashing_empco",
+              "produkthaftung",
+              "preisangaben_pangv",
+              "widerrufsrecht_erloeschen"
+            ],
+            "description": "widerrufsbutton = Pflicht zur elektronischen Widerrufsfunktion; gpsr = Produktsicherheitsverordnung; bfsg = Barrierefreiheit; greenwashing_empco = Greenwashing-Verbot; produkthaftung = Umsetzungsfrist der neuen Produkthaftungsrichtlinie; preisangaben_pangv = PAngV 2022 mit 30-Tage-Regel für Streichpreise; widerrufsrecht_erloeschen = Höchstfrist ohne korrekte Belehrung."
+          }
+        },
+        "required": [
+          "thema"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "thema": {
+            "type": "string"
+          },
+          "titel": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "gilt_seit",
+              "gilt_ab",
+              "frist",
+              "register_nicht_lesbar"
+            ],
+            "description": "gilt_seit = Stichtag liegt vor heute; gilt_ab = Stichtag liegt in der Zukunft; frist = Zeitraum statt Stichtag."
+          },
+          "stichtag": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "stichtag_text": {
+            "type": "string"
+          },
+          "heute": {
+            "type": "string"
+          },
+          "fakten": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "thema": {
+                  "type": "string"
+                },
+                "wert": {
+                  "type": "string"
+                },
+                "quelle": {
+                  "type": "string"
+                },
+                "quelle_url": {
+                  "type": "string"
+                },
+                "geprueft": {
+                  "type": "string"
+                },
+                "register_url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "thema",
+                "wert",
+                "quelle",
+                "quelle_url",
+                "geprueft",
+                "register_url"
+              ]
+            }
+          },
+          "stand": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "info_url": {
+            "type": "string"
+          },
+          "register_url": {
+            "type": "string"
+          },
+          "disclaimer": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "thema",
+          "titel",
+          "status",
+          "stichtag_text",
+          "heute",
+          "fakten",
+          "info_url",
+          "register_url",
+          "disclaimer"
+        ]
+      },
+      "annotations": {
+        "title": "Stichtag einer Pflicht im Onlineshop-Recht",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_fine_ceilings",
+      "title": "Gesetzlicher Bußgeld- oder Strafrahmen",
+      "description": "Use for \"wie hoch ist das Bußgeld\", \"Strafe\", \"was droht\", \"Höchstbetrag\", \"Vertragsstrafe Abmahnung\" in German e-commerce law: BFSG, Preisangabenverordnung, Cookies/TDDDG, Verpackungsgesetz, Elektrogesetz, DSGVO, Produktsicherheit (ProdSG/GPSR), Vertragsstrafe bei der ersten Abmahnung (§ 13a UWG). Returns the statutory maximum from the source register with paragraph, URL and check date. It is always the legal ceiling, never an estimate for a specific case or shop.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "thema": {
+            "type": "string",
+            "enum": [
+              "bfsg",
+              "pangv",
+              "cookies_tdddg",
+              "verpackg",
+              "elektrog",
+              "dsgvo",
+              "prodsg_gpsr",
+              "abmahnung_vertragsstrafe"
+            ],
+            "description": "bfsg, pangv, cookies_tdddg, verpackg, elektrog, dsgvo, prodsg_gpsr oder abmahnung_vertragsstrafe."
+          }
+        },
+        "required": [
+          "thema"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "thema": {
+            "type": "string"
+          },
+          "titel": {
+            "type": "string"
+          },
+          "hoechstrahmen": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "hinweis": {
+            "type": "string"
+          },
+          "fakten": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "thema": {
+                  "type": "string"
+                },
+                "wert": {
+                  "type": "string"
+                },
+                "quelle": {
+                  "type": "string"
+                },
+                "quelle_url": {
+                  "type": "string"
+                },
+                "geprueft": {
+                  "type": "string"
+                },
+                "register_url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "thema",
+                "wert",
+                "quelle",
+                "quelle_url",
+                "geprueft",
+                "register_url"
+              ]
+            }
+          },
+          "stand": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "info_url": {
+            "type": "string"
+          },
+          "register_url": {
+            "type": "string"
+          },
+          "disclaimer": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "thema",
+          "titel",
+          "hinweis",
+          "fakten",
+          "info_url",
+          "register_url",
+          "disclaimer"
+        ]
+      },
+      "annotations": {
+        "title": "Gesetzlicher Bußgeld- oder Strafrahmen",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "calculate_grundpreis",
+      "title": "Grundpreis nach § 5 PAngV berechnen",
+      "description": "Use when someone wants the base price (Grundpreis) for a product: \"Grundpreis berechnen\", \"Preis pro Kilo/Liter/Meter/Quadratmeter\", \"12,90 € für 750 g\". Input: total price including VAT, quantity and unit (g, kg, ml, l, mm, cm, m, cm2, m2, m3, stk). Returns the Grundpreis per legal reference unit (1 kg, 1 l, 1 m, 1 m², 1 m³ under § 5 PAngV; 100 g or 100 ml only with loose_goods=true), rounded to two decimals exactly like the calculator on rechtsklar24.de. A per-piece price is computed but flagged as not a Grundpreis (§ 4 PAngV). Arithmetic on the user's numbers only; it does not judge whether a specific offer is lawful.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "price": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Gesamtpreis in Euro inklusive Umsatzsteuer, z. B. 12.9."
+          },
+          "quantity": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Füllmenge oder Inhalt in der angegebenen Einheit, z. B. 750."
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "g",
+              "kg",
+              "ml",
+              "l",
+              "mm",
+              "cm",
+              "m",
+              "cm2",
+              "m2",
+              "m3",
+              "stk"
+            ],
+            "description": "Einheit der Menge: g, kg (Gewicht); ml, l (Volumen); mm, cm, m (Länge); cm2, m2 (Fläche); m3 (Raummaß); stk = Stückzahl (kein Grundpreis)."
+          },
+          "loose_goods": {
+            "type": "boolean",
+            "description": "true nur bei loser, unverpackter Ware nach Gewicht oder Volumen: dann 100 g bzw. 100 ml als Bezugsgröße (§ 5 Absatz 2 PAngV). Standard false."
+          }
+        },
+        "required": [
+          "price",
+          "quantity",
+          "unit"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ergebnis",
+              "kein_grundpreis"
+            ],
+            "description": "kein_grundpreis = Preis je Stück: § 4 PAngV kennt dafür keinen Grundpreis; der Wert wird trotzdem ausgerechnet."
+          },
+          "preis": {
+            "type": "number"
+          },
+          "menge": {
+            "type": "number"
+          },
+          "einheit": {
+            "type": "string"
+          },
+          "lose_ware": {
+            "type": "boolean"
+          },
+          "grundpreis": {
+            "type": "number",
+            "description": "Auf zwei Nachkommastellen gerundet."
+          },
+          "bezugsgroesse": {
+            "type": "string"
+          },
+          "grundpreis_text": {
+            "type": "string"
+          },
+          "rechnung": {
+            "type": "string"
+          },
+          "hinweis": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fakten": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "thema": {
+                  "type": "string"
+                },
+                "wert": {
+                  "type": "string"
+                },
+                "quelle": {
+                  "type": "string"
+                },
+                "quelle_url": {
+                  "type": "string"
+                },
+                "geprueft": {
+                  "type": "string"
+                },
+                "register_url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "thema",
+                "wert",
+                "quelle",
+                "quelle_url",
+                "geprueft",
+                "register_url"
+              ]
+            }
+          },
+          "stand": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "info_url": {
+            "type": "string"
+          },
+          "register_url": {
+            "type": "string"
+          },
+          "disclaimer": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "preis",
+          "menge",
+          "einheit",
+          "lose_ware",
+          "grundpreis",
+          "bezugsgroesse",
+          "grundpreis_text",
+          "rechnung",
+          "fakten",
+          "info_url",
+          "register_url",
+          "disclaimer"
+        ]
+      },
+      "annotations": {
+        "title": "Grundpreis nach § 5 PAngV berechnen",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_study_facts",
+      "title": "Studienzahlen zum Onlineshop-Recht",
+      "description": "Use for figures about how common legal defects in online shops are: \"wie viele Shops haben Fehler\", \"Studie Rechtsfehler Onlineshops\", \"wie viele Händler werden abgemahnt\", \"Abmahnquote\", \"Widerrufsbelehrung fehlerhaft Prozent\". Returns the numbers from rechtsklar24's RechtsRadar-Report 2026 (n = 934 certified shops) and the Händlerbund surveys, each with n, method, publisher and primary source. Aggregate figures only; no shop names.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "thema": {
+            "type": "string",
+            "enum": [
+              "rechtsradar_2026",
+              "widerrufsbelehrung",
+              "abmahnquoten_haendlerbund"
+            ],
+            "description": "rechtsradar_2026 = Gesamtergebnis des Reports; widerrufsbelehrung = Anteil mit Lücken in der Widerrufsbelehrung; abmahnquoten_haendlerbund = Abmahnquoten 2024 und 2025."
+          }
+        },
+        "required": [
+          "thema"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "thema": {
+            "type": "string"
+          },
+          "titel": {
+            "type": "string"
+          },
+          "methode": {
+            "type": "string"
+          },
+          "fakten": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "thema": {
+                  "type": "string"
+                },
+                "wert": {
+                  "type": "string"
+                },
+                "quelle": {
+                  "type": "string"
+                },
+                "quelle_url": {
+                  "type": "string"
+                },
+                "geprueft": {
+                  "type": "string"
+                },
+                "register_url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "thema",
+                "wert",
+                "quelle",
+                "quelle_url",
+                "geprueft",
+                "register_url"
+              ]
+            }
+          },
+          "stand": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "info_url": {
+            "type": "string"
+          },
+          "register_url": {
+            "type": "string"
+          },
+          "disclaimer": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "thema",
+          "titel",
+          "methode",
+          "fakten",
+          "info_url",
+          "register_url",
+          "disclaimer"
+        ]
+      },
+      "annotations": {
+        "title": "Studienzahlen zum Onlineshop-Recht",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    }
+  ],
+  "version": "1.1.0",
+  "tags": [
+    "legal",
+    "germany",
+    "ecommerce",
+    "compliance",
+    "remote"
+  ]
+}

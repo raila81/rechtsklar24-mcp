@@ -1,0 +1,8 @@
+{
+  "name": "rechtsklar24-mcp",
+  "version": "1.1.0",
+  "private": true,
+  "description": "German online-shop law with sources: obligation dates (e.g. the withdrawal button), fine ceilings, unit-price calculation under the PAngV and sourced study facts.",
+  "homepage": "https://rechtsklar24.de/ki-assistenten.html",
+  "license": "UNLICENSED"
+}
